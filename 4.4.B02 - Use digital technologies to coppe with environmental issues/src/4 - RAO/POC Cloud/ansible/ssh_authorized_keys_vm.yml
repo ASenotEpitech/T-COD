@@ -1,0 +1,23 @@
+- name: Charger les variables d'environnement
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Charger les variables d'environnement
+      include_vars:
+        file: vars/vars_ssh_authorized_keys_vm.yml
+
+- name: Ajouter la clé SSH dans une VM
+  hosts: connectvm
+  become: yes
+  tasks:
+    - name: Charger les variables d'environnement
+      include_vars:
+        file: vars/vars_ssh_authorized_keys_vm.yml
+
+    - name: Copier la clé publique SSH vers la VM
+      authorized_key:
+        user: "{{ user_vm }}"
+        key: "{{ lookup('file', path_sshkey_pub) }}"
+        path: "{{ path_authorized_key_vm }}"
+        state: present

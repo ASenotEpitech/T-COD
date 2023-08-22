@@ -1,0 +1,18 @@
+- name: Config vm Debian
+  hosts: connectvm
+  become: yes
+  vars_files:
+    - vars/vars_git_installation.yml
+
+  tasks:
+    - name: Installer Python
+      import_tasks: python_installation.yml
+      tags: python
+
+    - name: Installer Git
+      import_tasks: git_installation.yml
+      tags: git
+
+    - name: Installer Docker
+      import_tasks: docker_installation.yml
+      tags: docker

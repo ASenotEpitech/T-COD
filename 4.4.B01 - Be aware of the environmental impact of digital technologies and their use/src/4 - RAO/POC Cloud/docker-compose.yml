@@ -1,0 +1,44 @@
+# Use postgres/example for testing
+version: '3.0'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - myvol:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 80:8080
+      
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    # user: postgres:postgres # Optional: see below
+    volumes:
+        - /var/opt/pgbackups:/backups
+    links:
+        - db
+    depends_on:
+        - db
+    environment:
+        - POSTGRES_HOST=db
+        - POSTGRES_DB=max
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=example
+     #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
+        - POSTGRES_EXTRA_OPTS=-Z6 --schema=public --blobs
+        - SCHEDULE=@daily
+        - BACKUP_KEEP_DAYS=7
+        - BACKUP_KEEP_WEEKS=4
+        - BACKUP_KEEP_MONTHS=6
+        - HEALTHCHECK_PORT=8080
+      
+volumes:
+  myvol:
